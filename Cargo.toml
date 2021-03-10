@@ -1,0 +1,13 @@
+[package]
+name = "libp2p-broadcast"
+version = "0.1.0"
+authors = ["David Craven <david@craven.ch>", "Actyx AG"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+description = "broadcast messages to connected peers"
+repository = "https://github.com/ipfs-rust/libp2p-broadcast"
+
+[dependencies]
+fnv = "1.0.7"
+futures = "0.3.13"
+libp2p = { version = "0.35.1", default-features = false }
