@@ -19,7 +19,7 @@ pub enum BroadcastEvent {
 }
 
 #[derive(Debug, Default)]
-pub struct BroadcastBehaviour {
+pub struct Broadcast {
     config: BroadcastConfig,
     subscriptions: FnvHashSet<Topic>,
     peers: FnvHashMap<PeerId, FnvHashSet<Topic>>,
@@ -27,7 +27,7 @@ pub struct BroadcastBehaviour {
     events: VecDeque<NetworkBehaviourAction<Message, BroadcastEvent>>,
 }
 
-impl BroadcastBehaviour {
+impl Broadcast {
     pub fn new(config: BroadcastConfig) -> Self {
         Self {
             config,
@@ -75,7 +75,7 @@ impl BroadcastBehaviour {
     }
 }
 
-impl NetworkBehaviour for BroadcastBehaviour {
+impl NetworkBehaviour for Broadcast {
     type ProtocolsHandler = OneShotHandler<BroadcastConfig, Message, HandlerEvent>;
     type OutEvent = BroadcastEvent;
 
@@ -175,8 +175,8 @@ mod tests {
 
     struct DummySwarm {
         peer_id: PeerId,
-        behaviour: Arc<Mutex<BroadcastBehaviour>>,
-        connections: FnvHashMap<PeerId, Arc<Mutex<BroadcastBehaviour>>>,
+        behaviour: Arc<Mutex<Broadcast>>,
+        connections: FnvHashMap<PeerId, Arc<Mutex<Broadcast>>>,
     }
 
     impl DummySwarm {
