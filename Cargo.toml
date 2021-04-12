@@ -10,4 +10,4 @@ repository = "https://github.com/ipfs-rust/libp2p-broadcast"
 [dependencies]
 fnv = "1.0.7"
 futures = "0.3.13"
-libp2p = { version = "0.36.0", default-features = false }
+libp2p = { version = "0.37.0", default-features = false, git = "https://github.com/libp2p/rust-libp2p" }
