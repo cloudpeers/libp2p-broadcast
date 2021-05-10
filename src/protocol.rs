@@ -48,6 +48,9 @@ pub enum Message {
 
 impl Message {
     fn from_bytes(bytes: &[u8]) -> Result<Self> {
+        if bytes.is_empty() {
+            return Err(Error::new(ErrorKind::InvalidData, "empty message"));
+        }
         let topic_len = (bytes[0] >> 2) as usize;
         if bytes.len() < topic_len + 1 {
             return Err(Error::new(ErrorKind::InvalidData, "topic length out of range"));
