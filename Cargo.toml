@@ -1,6 +1,6 @@
 [package]
 name = "libp2p-broadcast"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["David Craven <david@craven.ch>", "Actyx AG"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -9,5 +9,5 @@ repository = "https://github.com/ipfs-rust/libp2p-broadcast"
 
 [dependencies]
 fnv = "1.0.7"
-futures = "0.3.14"
-libp2p = { version = "0.37.1", default-features = false }
+futures = "0.3.15"
+libp2p = { version = "0.38.0", default-features = false }
