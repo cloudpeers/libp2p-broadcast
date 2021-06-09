@@ -1,6 +1,6 @@
 use futures::future::BoxFuture;
 use futures::io::{AsyncRead, AsyncWrite};
-use libp2p::core::{upgrade, InboundUpgrade, OutboundUpgrade, UpgradeInfo};
+use libp2p::core::{upgrade, InboundUpgrade, OutboundUpgrade, SimOpenRole, UpgradeInfo};
 use std::io::{Error, ErrorKind, Result};
 use std::sync::Arc;
 
@@ -157,7 +157,7 @@ where
     type Error = Error;
     type Future = BoxFuture<'static, Result<Self::Output>>;
 
-    fn upgrade_outbound(self, mut socket: TSocket, _info: Self::Info) -> Self::Future {
+    fn upgrade_outbound(self, mut socket: TSocket, _info: Self::Info, _: SimOpenRole) -> Self::Future {
         Box::pin(async move {
             let bytes = self.to_bytes();
             upgrade::write_one(&mut socket, bytes).await?;
