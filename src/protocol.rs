@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use futures::io::{AsyncRead, AsyncWrite};
+use futures::io::{AsyncRead, AsyncWrite, AsyncWriteExt};
 use libp2p::core::{upgrade, InboundUpgrade, OutboundUpgrade, UpgradeInfo};
 use std::io::{Error, ErrorKind, Result};
 use std::sync::Arc;
@@ -127,13 +127,8 @@ where
 
     fn upgrade_inbound(self, mut socket: TSocket, _info: Self::Info) -> Self::Future {
         Box::pin(async move {
-            let packet = upgrade::read_one(&mut socket, self.max_buf_size).await.map_err(|err| {
-                use upgrade::ReadOneError::*;
-                match err {
-                    Io(err) => err,
-                    TooLarge { .. } => Error::new(ErrorKind::InvalidData, format!("{}", err)),
-                }
-            })?;
+            let packet = upgrade::read_length_prefixed(&mut socket, self.max_buf_size).await?;
+            socket.close().await?;
             let request = Message::from_bytes(&packet)?;
             Ok(request)
         })
@@ -160,7 +155,8 @@ where
     fn upgrade_outbound(self, mut socket: TSocket, _info: Self::Info) -> Self::Future {
         Box::pin(async move {
             let bytes = self.to_bytes();
-            upgrade::write_one(&mut socket, bytes).await?;
+            upgrade::write_length_prefixed(&mut socket, bytes).await?;
+            socket.close().await?;
             Ok(())
         })
     }
