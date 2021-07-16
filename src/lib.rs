@@ -1,7 +1,9 @@
 use crate::protocol::Message;
 use fnv::{FnvHashMap, FnvHashSet};
 use libp2p::core::connection::ConnectionId;
-use libp2p::swarm::{NetworkBehaviour, NetworkBehaviourAction, NotifyHandler, OneShotHandler, PollParameters};
+use libp2p::swarm::{
+    NetworkBehaviour, NetworkBehaviourAction, NotifyHandler, OneShotHandler, PollParameters,
+};
 use libp2p::{Multiaddr, PeerId};
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -39,11 +41,12 @@ impl Broadcast {
         self.subscriptions.insert(topic);
         let msg = Message::Subscribe(topic);
         for peer in self.peers.keys() {
-            self.events.push_back(NetworkBehaviourAction::NotifyHandler {
-                peer_id: *peer,
-                event: msg.clone(),
-                handler: NotifyHandler::Any,
-            });
+            self.events
+                .push_back(NetworkBehaviourAction::NotifyHandler {
+                    peer_id: *peer,
+                    event: msg.clone(),
+                    handler: NotifyHandler::Any,
+                });
         }
     }
 
@@ -52,11 +55,12 @@ impl Broadcast {
         let msg = Message::Unsubscribe(*topic);
         if let Some(peers) = self.topics.get(topic) {
             for peer in peers {
-                self.events.push_back(NetworkBehaviourAction::NotifyHandler {
-                    peer_id: *peer,
-                    event: msg.clone(),
-                    handler: NotifyHandler::Any,
-                });
+                self.events
+                    .push_back(NetworkBehaviourAction::NotifyHandler {
+                        peer_id: *peer,
+                        event: msg.clone(),
+                        handler: NotifyHandler::Any,
+                    });
             }
         }
     }
@@ -65,11 +69,12 @@ impl Broadcast {
         let msg = Message::Broadcast(*topic, msg);
         if let Some(peers) = self.topics.get(topic) {
             for peer in peers {
-                self.events.push_back(NetworkBehaviourAction::NotifyHandler {
-                    peer_id: *peer,
-                    event: msg.clone(),
-                    handler: NotifyHandler::Any,
-                });
+                self.events
+                    .push_back(NetworkBehaviourAction::NotifyHandler {
+                        peer_id: *peer,
+                        event: msg.clone(),
+                        handler: NotifyHandler::Any,
+                    });
             }
         }
     }
@@ -90,11 +95,12 @@ impl NetworkBehaviour for Broadcast {
     fn inject_connected(&mut self, peer: &PeerId) {
         self.peers.insert(*peer, FnvHashSet::default());
         for topic in &self.subscriptions {
-            self.events.push_back(NetworkBehaviourAction::NotifyHandler {
-                peer_id: *peer,
-                event: Message::Subscribe(*topic),
-                handler: NotifyHandler::Any,
-            });
+            self.events
+                .push_back(NetworkBehaviourAction::NotifyHandler {
+                    peer_id: *peer,
+                    event: Message::Subscribe(*topic),
+                    handler: NotifyHandler::Any,
+                });
         }
     }
 
@@ -130,7 +136,8 @@ impl NetworkBehaviour for Broadcast {
                 return;
             }
         };
-        self.events.push_back(NetworkBehaviourAction::GenerateEvent(ev));
+        self.events
+            .push_back(NetworkBehaviourAction::GenerateEvent(ev));
     }
 
     fn poll(
@@ -193,10 +200,20 @@ mod tests {
         }
 
         fn dial(&mut self, other: &mut DummySwarm) {
-            self.behaviour.lock().unwrap().inject_connected(other.peer_id());
-            self.connections.insert(*other.peer_id(), other.behaviour.clone());
-            other.behaviour.lock().unwrap().inject_connected(self.peer_id());
-            other.connections.insert(*self.peer_id(), self.behaviour.clone());
+            self.behaviour
+                .lock()
+                .unwrap()
+                .inject_connected(other.peer_id());
+            self.connections
+                .insert(*other.peer_id(), other.behaviour.clone());
+            other
+                .behaviour
+                .lock()
+                .unwrap()
+                .inject_connected(self.peer_id());
+            other
+                .connections
+                .insert(*self.peer_id(), self.behaviour.clone());
         }
 
         fn next(&self) -> Option<BroadcastEvent> {
@@ -205,10 +222,16 @@ mod tests {
             let mut me = self.behaviour.lock().unwrap();
             loop {
                 match me.poll(&mut ctx, &mut DummyPollParameters) {
-                    Poll::Ready(NetworkBehaviourAction::NotifyHandler { peer_id, event, .. }) => {
+                    Poll::Ready(NetworkBehaviourAction::NotifyHandler {
+                        peer_id, event, ..
+                    }) => {
                         if let Some(other) = self.connections.get(&peer_id) {
                             let mut other = other.lock().unwrap();
-                            other.inject_event(*self.peer_id(), ConnectionId::new(0), HandlerEvent::Rx(event));
+                            other.inject_event(
+                                *self.peer_id(),
+                                ConnectionId::new(0),
+                                HandlerEvent::Rx(event),
+                            );
                         }
                     }
                     Poll::Ready(NetworkBehaviourAction::GenerateEvent(event)) => {
@@ -272,15 +295,27 @@ mod tests {
         a.subscribe(topic);
         a.dial(&mut b);
         assert!(a.next().is_none());
-        assert_eq!(b.next().unwrap(), BroadcastEvent::Subscribed(*a.peer_id(), topic));
+        assert_eq!(
+            b.next().unwrap(),
+            BroadcastEvent::Subscribed(*a.peer_id(), topic)
+        );
         b.subscribe(topic);
         assert!(b.next().is_none());
-        assert_eq!(a.next().unwrap(), BroadcastEvent::Subscribed(*b.peer_id(), topic));
+        assert_eq!(
+            a.next().unwrap(),
+            BroadcastEvent::Subscribed(*b.peer_id(), topic)
+        );
         b.broadcast(&topic, msg.clone());
         assert!(b.next().is_none());
-        assert_eq!(a.next().unwrap(), BroadcastEvent::Received(*b.peer_id(), topic, msg));
+        assert_eq!(
+            a.next().unwrap(),
+            BroadcastEvent::Received(*b.peer_id(), topic, msg)
+        );
         a.unsubscribe(&topic);
         assert!(a.next().is_none());
-        assert_eq!(b.next().unwrap(), BroadcastEvent::Unsubscribed(*a.peer_id(), topic));
+        assert_eq!(
+            b.next().unwrap(),
+            BroadcastEvent::Unsubscribed(*a.peer_id(), topic)
+        );
     }
 }
