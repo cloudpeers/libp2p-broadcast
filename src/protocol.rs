@@ -53,7 +53,10 @@ impl Message {
         }
         let topic_len = (bytes[0] >> 2) as usize;
         if bytes.len() < topic_len + 1 {
-            return Err(Error::new(ErrorKind::InvalidData, "topic length out of range"));
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "topic length out of range",
+            ));
         }
         let msg_len = bytes.len() - topic_len - 1;
         let topic = Topic::new(&bytes[1..topic_len + 1]);
