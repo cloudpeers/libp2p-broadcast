@@ -10,7 +10,4 @@ repository = "https://github.com/ipfs-rust/libp2p-broadcast"
 [dependencies]
 fnv = "1.0.7"
 futures = "0.3.15"
-libp2p = { version = "0.38.0", default-features = false }
-
-[patch.crates-io]
-libp2p = { path = "../rust-libp2p" }
+libp2p = { version = "0.39.1", default-features = false }
