@@ -37,6 +37,18 @@ impl Broadcast {
         }
     }
 
+    pub fn subscribed(&self) -> impl Iterator<Item = &Topic> + '_ {
+        self.subscriptions.iter()
+    }
+
+    pub fn peers(&self, topic: &Topic) -> Option<impl Iterator<Item = &PeerId> + '_> {
+        self.topics.get(topic).map(|peers| peers.iter())
+    }
+
+    pub fn topics(&self, peer: &PeerId) -> Option<impl Iterator<Item = &Topic> + '_> {
+        self.peers.get(peer).map(|topics| topics.iter())
+    }
+
     pub fn subscribe(&mut self, topic: Topic) {
         self.subscriptions.insert(topic);
         let msg = Message::Subscribe(topic);
