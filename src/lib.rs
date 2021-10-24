@@ -6,6 +6,7 @@ use libp2p::swarm::{
 };
 use libp2p::{Multiaddr, PeerId};
 use std::collections::VecDeque;
+use std::fmt;
 use std::sync::Arc;
 use std::task::{Context, Poll};
 
@@ -19,14 +20,26 @@ pub enum BroadcastEvent {
     Unsubscribed(PeerId, Topic),
     Received(PeerId, Topic, Arc<[u8]>),
 }
+type Handler = OneShotHandler<BroadcastConfig, Message, HandlerEvent>;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Broadcast {
     config: BroadcastConfig,
     subscriptions: FnvHashSet<Topic>,
     peers: FnvHashMap<PeerId, FnvHashSet<Topic>>,
     topics: FnvHashMap<Topic, FnvHashSet<PeerId>>,
-    events: VecDeque<NetworkBehaviourAction<Message, BroadcastEvent>>,
+    events: VecDeque<NetworkBehaviourAction<BroadcastEvent, Handler>>,
+}
+
+impl fmt::Debug for Broadcast {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Broadcast")
+            .field("config", &self.config)
+            .field("subscriptions", &self.subscriptions)
+            .field("peers", &self.peers)
+            .field("topics", &self.topics)
+            .finish()
+    }
 }
 
 impl Broadcast {
@@ -156,7 +169,7 @@ impl NetworkBehaviour for Broadcast {
         &mut self,
         _: &mut Context,
         _: &mut impl PollParameters,
-    ) -> Poll<NetworkBehaviourAction<Message, Self::OutEvent>> {
+    ) -> Poll<NetworkBehaviourAction<BroadcastEvent, Handler>> {
         if let Some(event) = self.events.pop_front() {
             Poll::Ready(event)
         } else {
