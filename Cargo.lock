@@ -425,7 +425,7 @@ dependencies = [
 
 [[package]]
 name = "libp2p-broadcast"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "fnv",
  "futures",
