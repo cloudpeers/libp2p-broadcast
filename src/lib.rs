@@ -103,19 +103,6 @@ impl Broadcast {
             }
         }
     }
-}
-
-impl NetworkBehaviour for Broadcast {
-    type ProtocolsHandler = OneShotHandler<BroadcastConfig, Message, HandlerEvent>;
-    type OutEvent = BroadcastEvent;
-
-    fn new_handler(&mut self) -> Self::ProtocolsHandler {
-        Default::default()
-    }
-
-    fn addresses_of_peer(&mut self, _peer: &PeerId) -> Vec<Multiaddr> {
-        Vec::new()
-    }
 
     fn inject_connected(&mut self, peer: &PeerId) {
         self.peers.insert(*peer, FnvHashSet::default());
@@ -137,6 +124,41 @@ impl NetworkBehaviour for Broadcast {
                 }
             }
         }
+    }
+}
+
+impl NetworkBehaviour for Broadcast {
+    type ConnectionHandler = OneShotHandler<BroadcastConfig, Message, HandlerEvent>;
+    type OutEvent = BroadcastEvent;
+
+    fn new_handler(&mut self) -> Self::ConnectionHandler {
+        Default::default()
+    }
+
+    fn addresses_of_peer(&mut self, _peer: &PeerId) -> Vec<Multiaddr> {
+        Vec::new()
+    }
+
+    fn inject_connection_established(
+        &mut self,
+        peer: &PeerId,
+        _connection_id: &ConnectionId,
+        _endpoint: &libp2p::core::ConnectedPoint,
+        _failed_addresses: Option<&Vec<Multiaddr>>,
+        _other_established: usize,
+    ) {
+        self.inject_connected(peer)
+    }
+
+    fn inject_connection_closed(
+        &mut self,
+        peer: &PeerId,
+        _: &ConnectionId,
+        _: &libp2p::core::ConnectedPoint,
+        _: <Self::ConnectionHandler as libp2p::swarm::IntoConnectionHandler>::Handler,
+        _remaining_established: usize,
+    ) {
+        self.inject_disconnected(peer)
     }
 
     fn inject_event(&mut self, peer: PeerId, _: ConnectionId, msg: HandlerEvent) {
