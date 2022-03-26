@@ -145,9 +145,11 @@ impl NetworkBehaviour for Broadcast {
         _connection_id: &ConnectionId,
         _endpoint: &libp2p::core::ConnectedPoint,
         _failed_addresses: Option<&Vec<Multiaddr>>,
-        _other_established: usize,
+        other_established: usize,
     ) {
-        self.inject_connected(peer)
+        if other_established == 0 {
+            self.inject_connected(peer)
+        }
     }
 
     fn inject_connection_closed(
@@ -156,9 +158,11 @@ impl NetworkBehaviour for Broadcast {
         _: &ConnectionId,
         _: &libp2p::core::ConnectedPoint,
         _: <Self::ConnectionHandler as libp2p::swarm::IntoConnectionHandler>::Handler,
-        _remaining_established: usize,
+        remaining_established: usize,
     ) {
-        self.inject_disconnected(peer)
+        if remaining_established == 0 {
+            self.inject_disconnected(peer)
+        }
     }
 
     fn inject_event(&mut self, peer: PeerId, _: ConnectionId, msg: HandlerEvent) {
