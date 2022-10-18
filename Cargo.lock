@@ -402,9 +402,9 @@ checksum = "efaa7b300f3b5fe8eb6bf21ce3895e1751d9665086af2d64b42f19701015ff4f"
 
 [[package]]
 name = "libp2p"
-version = "0.48.0"
+version = "0.49.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94c996fe5bfdba47f5a5af71d48ecbe8cec900b7b97391cc1d3ba1afb0e2d3b6"
+checksum = "ec878fda12ebec479186b3914ebc48ff180fa4c51847e11a1a68bf65249e02c1"
 dependencies = [
  "bytes",
  "futures",
@@ -418,13 +418,12 @@ dependencies = [
  "multiaddr",
  "parking_lot",
  "pin-project",
- "rand 0.7.3",
  "smallvec",
 ]
 
 [[package]]
 name = "libp2p-broadcast"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "fnv",
  "futures",
@@ -433,9 +432,9 @@ dependencies = [
 
 [[package]]
 name = "libp2p-core"
-version = "0.36.0"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1fff5bd889c82a0aec668f2045edd066f559d4e5c40354e5a4c77ac00caac38"
+checksum = "799676bb0807c788065e57551c6527d461ad572162b0519d1958946ff9e0539d"
 dependencies = [
  "asn1_der",
  "bs58",
@@ -466,9 +465,9 @@ dependencies = [
 
 [[package]]
 name = "libp2p-swarm"
-version = "0.39.0"
+version = "0.40.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70ad2db60c06603606b54b58e4247e32efec87a93cb4387be24bf32926c600f2"
+checksum = "46d13df7c37807965d82930c0e4b04a659efcb6cca237373b206043db5398ecf"
 dependencies = [
  "either",
  "fnv",
@@ -478,7 +477,7 @@ dependencies = [
  "libp2p-core",
  "log",
  "pin-project",
- "rand 0.7.3",
+ "rand 0.8.5",
  "smallvec",
  "thiserror",
  "void",
@@ -486,9 +485,9 @@ dependencies = [
 
 [[package]]
 name = "libp2p-swarm-derive"
-version = "0.30.0"
+version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f02622b9dd150011b4eeec387f8bd013189a2f27da08ba363e7c6e606d77a48"
+checksum = "a0eddc4497a8b5a506013c40e8189864f9c3a00db2b25671f428ae9007f3ba32"
 dependencies = [
  "heck",
  "quote",
@@ -578,9 +577,9 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "multistream-select"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "363a84be6453a70e63513660f4894ef815daf88e3356bffcda9ca27d810ce83b"
+checksum = "9bc41247ec209813e2fd414d6e16b9d94297dacf3cd613fa6ef09cd4d9755c10"
 dependencies = [
  "bytes",
  "futures",
