@@ -91,7 +91,10 @@ jobs:
 
       - name: Build
         if: contains(matrix.platform.target, 'android') == false
-        run: cargo build --all --target ${{ matrix.platform.target }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --all --target ${{ matrix.platform.target }}
 
       - name: Build android
         if: contains(matrix.platform.target, 'android')
