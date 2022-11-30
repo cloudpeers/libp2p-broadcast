@@ -39,7 +39,7 @@ impl AsRef<[u8]> for Topic {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Message {
     Subscribe(Topic),
     Broadcast(Topic, Arc<[u8]>),

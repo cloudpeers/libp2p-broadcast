@@ -12,6 +12,7 @@ use std::task::{Context, Poll};
 
 mod protocol;
 
+use libp2p::swarm::derive_prelude::FromSwarm;
 pub use protocol::{BroadcastConfig, Topic};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -139,33 +140,23 @@ impl NetworkBehaviour for Broadcast {
         Vec::new()
     }
 
-    fn inject_connection_established(
-        &mut self,
-        peer: &PeerId,
-        _connection_id: &ConnectionId,
-        _endpoint: &libp2p::core::ConnectedPoint,
-        _failed_addresses: Option<&Vec<Multiaddr>>,
-        other_established: usize,
-    ) {
-        if other_established == 0 {
-            self.inject_connected(peer)
+    fn on_swarm_event(&mut self, event: FromSwarm<Self::ConnectionHandler>) {
+        match event {
+            FromSwarm::ConnectionEstablished(c) => {
+                if c.other_established == 0 {
+                    self.inject_connected(&c.peer_id);
+                }
+            }
+            FromSwarm::ConnectionClosed(c) => {
+                if c.remaining_established == 0 {
+                    self.inject_disconnected(&c.peer_id);
+                }
+            }
+            _ => {}
         }
     }
 
-    fn inject_connection_closed(
-        &mut self,
-        peer: &PeerId,
-        _: &ConnectionId,
-        _: &libp2p::core::ConnectedPoint,
-        _: <Self::ConnectionHandler as libp2p::swarm::IntoConnectionHandler>::Handler,
-        remaining_established: usize,
-    ) {
-        if remaining_established == 0 {
-            self.inject_disconnected(peer)
-        }
-    }
-
-    fn inject_event(&mut self, peer: PeerId, _: ConnectionId, msg: HandlerEvent) {
+    fn on_connection_handler_event(&mut self, peer: PeerId, _: ConnectionId, msg: HandlerEvent) {
         use HandlerEvent::*;
         use Message::*;
         let ev = match msg {
@@ -278,7 +269,7 @@ mod tests {
                     }) => {
                         if let Some(other) = self.connections.get(&peer_id) {
                             let mut other = other.lock().unwrap();
-                            other.inject_event(
+                            other.on_connection_handler_event(
                                 *self.peer_id(),
                                 ConnectionId::new(0),
                                 HandlerEvent::Rx(event),
